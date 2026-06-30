@@ -1,1024 +1,1408 @@
 <!doctype html>
 <html lang="zh-Hant">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>鑽孔刀具篩選器</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{background:#f4f7fb;color:#1f2937;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans TC",Arial,sans-serif;}
-    .app-card{max-width:980px;margin:40px auto;border:0;border-radius:24px;box-shadow:0 16px 40px rgba(15,23,42,.10);overflow:hidden;}
-    .hero{background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;padding:28px;}
-    .hero p{color:rgba(255,255,255,.78);margin-bottom:0;}
-    .mode-btn{border-radius:16px;padding:18px;text-align:left;border:2px solid #e5e7eb;background:#fff;transition:.18s;}
-    .mode-btn:hover{transform:translateY(-1px);border-color:#93c5fd;}
-    .mode-btn.active{border-color:#2563eb;background:#eff6ff;box-shadow:0 8px 22px rgba(37,99,235,.16);}
-    .mode-title{font-size:1.12rem;font-weight:800;}
-    .mode-desc{font-size:.92rem;color:#64748b;margin-top:4px;}
-    .result-card{border-radius:18px;border:1px solid #dbeafe;background:#f8fbff;}
-    .badge-soft{background:#e0f2fe;color:#075985;border:1px solid #bae6fd;}
-    .table thead th{background:#f1f5f9;color:#334155;}
-    .small-note{font-size:.9rem;color:#64748b;}
-    .empty-state{border:1px dashed #cbd5e1;border-radius:18px;padding:24px;text-align:center;color:#64748b;background:#fff;}
-  </style>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>鑽孔刀具篩選器</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>
+            body {
+                  background: #f4f7fb;
+                  color: #1f2937;
+                  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
+            }
+
+            .app-card {
+                  max-width: 980px;
+                  margin: 40px auto;
+                  border: 0;
+                  border-radius: 24px;
+                  box-shadow: 0 16px 40px rgba(15, 23, 42, .10);
+                  overflow: hidden;
+            }
+
+            .hero {
+                  background: linear-gradient(135deg, #0f172a, #2563eb);
+                  color: #fff;
+                  padding: 28px;
+            }
+
+            .hero p {
+                  color: rgba(255, 255, 255, .78);
+                  margin-bottom: 0;
+            }
+
+            .mode-btn {
+                  border-radius: 16px;
+                  padding: 18px;
+                  text-align: left;
+                  border: 2px solid #e5e7eb;
+                  background: #fff;
+                  transition: .18s;
+            }
+
+            .mode-btn:hover {
+                  transform: translateY(-1px);
+                  border-color: #93c5fd;
+            }
+
+            .mode-btn.active {
+                  border-color: #2563eb;
+                  background: #eff6ff;
+                  box-shadow: 0 8px 22px rgba(37, 99, 235, .16);
+            }
+
+            .mode-title {
+                  font-size: 1.12rem;
+                  font-weight: 800;
+            }
+
+            .mode-desc {
+                  font-size: .92rem;
+                  color: #64748b;
+                  margin-top: 4px;
+            }
+
+            .result-card {
+                  border-radius: 18px;
+                  border: 1px solid #dbeafe;
+                  background: #f8fbff;
+            }
+
+            .badge-soft {
+                  background: #e0f2fe;
+                  color: #075985;
+                  border: 1px solid #bae6fd;
+            }
+
+            .table thead th {
+                  background: #f1f5f9;
+                  color: #334155;
+            }
+
+            .small-note {
+                  font-size: .9rem;
+                  color: #64748b;
+            }
+
+            .empty-state {
+                  border: 1px dashed #cbd5e1;
+                  border-radius: 18px;
+                  padding: 24px;
+                  text-align: center;
+                  color: #64748b;
+                  background: #fff;
+            }
+      </style>
 </head>
+
 <body>
-  <main class="container px-3">
-    <section class="card app-card">
-      <div class="hero">
-        <h1 class="h3 fw-bold mb-2">鑽孔刀具快選</h1>
-        <p>輸入要鑽的孔徑，選擇加工深度模式，系統會自動推薦「D 等於輸入值」或「小於輸入值的最大 D」。</p>
-      </div>
+      <main class="container px-3">
+            <section class="card app-card">
+                  <div class="hero">
+                        <h1 class="h3 fw-bold mb-2">鑽孔刀具快選</h1>
+                        <p>輸入要鑽的孔徑，選擇加工深度模式，系統會自動推薦「D 等於輸入值」或「小於輸入值的最大 D」。</p>
+                  </div>
 
-      <div class="card-body p-4 p-md-5">
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <button class="mode-btn w-100 active" type="button" data-product="Super Drill" data-mode="short">
-              <div class="mode-title">&le; 4xD</div>
-              <div class="mode-desc">調用 Super Drill 資料</div>
-            </button>
-          </div>
-          <div class="col-md-6">
-            <button class="mode-btn w-100" type="button" data-product="Super Power Drill" data-mode="long">
-              <div class="mode-title">&gt; 4xD</div>
-              <div class="mode-desc">調用 Super Power Drill 資料</div>
-            </button>
-          </div>
-        </div>
+                  <div class="card-body p-4 p-md-5">
+                        <div class="row g-3 mb-4">
+                              <div class="col-md-6">
+                                    <button class="mode-btn w-100 active" type="button" data-product="Super Drill"
+                                          data-mode="short">
+                                          <div class="mode-title">&le; 4xD</div>
+                                          <div class="mode-desc">調用 Super Drill 資料</div>
+                                    </button>
+                              </div>
+                              <div class="col-md-6">
+                                    <button class="mode-btn w-100" type="button" data-product="Super Power Drill"
+                                          data-mode="long">
+                                          <div class="mode-title">&gt; 4xD</div>
+                                          <div class="mode-desc">調用 Super Power Drill 資料</div>
+                                    </button>
+                              </div>
+                        </div>
 
-        <div class="row g-3 align-items-end mb-4">
-          <div class="col-md-8">
-            <label class="form-label fw-semibold" for="holeSize">我要鑽多大的孔？</label>
-            <div class="input-group input-group-lg">
-              <span class="input-group-text">Ø</span>
-              <input id="holeSize" class="form-control" type="number" min="0" step="0.1" placeholder="例如：18.7">
-              <span class="input-group-text">mm</span>
-            </div>
-            <div class="form-text">例：輸入 18.7，會抓 D &le; 18.7 中最大的刀具。</div>
-          </div>
-          <div class="col-md-4 d-grid">
-            <button id="searchBtn" class="btn btn-primary btn-lg" type="button">篩選刀具</button>
-          </div>
-        </div>
+                        <div class="row g-3 align-items-end mb-4">
+                              <div class="col-md-8">
+                                    <label class="form-label fw-semibold" for="holeSize">我要鑽多大的孔？</label>
+                                    <div class="input-group input-group-lg">
+                                          <span class="input-group-text">Ø</span>
+                                          <input id="holeSize" class="form-control" type="number" min="0" step="0.1"
+                                                placeholder="例如：18.7">
+                                          <span class="input-group-text">mm</span>
+                                    </div>
+                                    <div class="form-text">例：輸入 18.7，會抓 D &le; 18.7 中最大的刀具。</div>
+                              </div>
+                              <div class="col-md-4 d-grid">
+                                    <button id="searchBtn" class="btn btn-primary btn-lg" type="button">篩選刀具</button>
+                              </div>
+                        </div>
 
-        <div id="status" class="alert alert-info d-none" role="alert"></div>
+                        <div id="status" class="alert alert-info d-none" role="alert"></div>
 
-        <section id="bestResult" class="result-card p-4 mb-4 d-none">
-          <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
-            <div>
-              <div class="small-note">推薦結果</div>
-              <h2 id="bestTitle" class="h4 fw-bold mb-0"></h2>
-            </div>
-            <span id="bestMode" class="badge badge-soft rounded-pill px-3 py-2"></span>
-          </div>
-          <div class="row g-3">
-            <div class="col-sm-3"><div class="small-note">產品</div><div id="bestProduct" class="fw-bold"></div></div>
-            <div class="col-sm-3"><div class="small-note">Parts No.</div><div id="bestPart" class="fw-bold"></div></div>
-            <div class="col-sm-3"><div class="small-note">D</div><div id="bestD" class="fw-bold"></div></div>
-            <div class="col-sm-3"><div class="small-note">T</div><div id="bestT" class="fw-bold"></div></div>
-          </div>
-        </section>
+                        <section id="bestResult" class="result-card p-4 mb-4 d-none">
+                              <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
+                                    <div>
+                                          <div class="small-note">推薦結果</div>
+                                          <h2 id="bestTitle" class="h4 fw-bold mb-0"></h2>
+                                    </div>
+                                    <span id="bestMode" class="badge badge-soft rounded-pill px-3 py-2"></span>
+                              </div>
+                              <div class="row g-3">
+                                    <div class="col-sm-3">
+                                          <div class="small-note">產品</div>
+                                          <div id="bestProduct" class="fw-bold"></div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                          <div class="small-note">Parts No.</div>
+                                          <div id="bestPart" class="fw-bold"></div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                          <div class="small-note">D</div>
+                                          <div id="bestD" class="fw-bold"></div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                          <div class="small-note">T</div>
+                                          <div id="bestT" class="fw-bold"></div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                          <div class="small-note">L</div>
+                                          <div id="bestL" class="fw-bold"></div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                          <div class="small-note">ØD</div>
+                                          <div id="bestd" class="fw-bold"></div>
+                                    </div>
 
-        <div id="emptyState" class="empty-state">請先輸入孔徑，並選擇 &le; 4xD 或 &gt; 4xD。</div>
+                              </div>
+                        </section>
 
-        <div id="tableWrap" class="table-responsive d-none">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3 class="h6 fw-bold mb-0">符合條件清單</h3>
-            <span id="countText" class="small-note"></span>
-          </div>
-          <table class="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>產品</th>
-                <th>Parts No.</th>
-                <th>D</th>
-                <th>T</th>
-              </tr>
-            </thead>
-            <tbody id="resultBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+                        <div id="emptyState" class="empty-state">請先輸入孔徑，並選擇 &le; 4xD 或 &gt; 4xD。</div>
 
-  <script>
-    const drillData = [
+                        <div id="tableWrap" class="table-responsive d-none">
+                              <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h3 class="h6 fw-bold mb-0">符合條件清單</h3>
+                                    <span id="countText" class="small-note"></span>
+                              </div>
+                              <table class="table table-hover align-middle">
+                                    <thead>
+                                          <tr>
+                                                <th>Product</th>
+                                                <th>Parts No.</th>
+                                                <th>Cutter Diameter ( ∅D) ±0.2mm</th>
+                                                <th>Drilling Depth (T)</th>
+                                                <th>Functional Length (L1)</th>
+                                                <th>Shank Size (Ød)</th>
+                                          </tr>
+                                    </thead>
+                                    <tbody id="resultBody"></tbody>
+                              </table>
+                        </div>
+                  </div>
+            </section>
+      </main>
 
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-10",
-            "D": 10,
-            "T": 30
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-10.3",
-            "D": 10.3,
-            "T": 30.9
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-10.5",
-            "D": 10.5,
-            "T": 31.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-11",
-            "D": 11,
-            "T": 33
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-11.5",
-            "D": 11.5,
-            "T": 34.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-12",
-            "D": 12,
-            "T": 36
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-12.5",
-            "D": 12.5,
-            "T": 37.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-13",
-            "D": 13,
-            "T": 39
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-13.5",
-            "D": 13.5,
-            "T": 40.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-14",
-            "D": 14,
-            "T": 42
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-14.5",
-            "D": 14.5,
-            "T": 43.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-15",
-            "D": 15,
-            "T": 45
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-15.5",
-            "D": 15.5,
-            "T": 46.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-16",
-            "D": 16,
-            "T": 48
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-16.5",
-            "D": 16.5,
-            "T": 49.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-17",
-            "D": 17,
-            "T": 51
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-17.5",
-            "D": 17.5,
-            "T": 52.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-18",
-            "D": 18,
-            "T": 54
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-18.5",
-            "D": 18.5,
-            "T": 55.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-19",
-            "D": 19,
-            "T": 57
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-19.5",
-            "D": 19.5,
-            "T": 58.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-20",
-            "D": 20,
-            "T": 60
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-20.5",
-            "D": 20.5,
-            "T": 61.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-21",
-            "D": 21,
-            "T": 63
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-21.5",
-            "D": 21.5,
-            "T": 64.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-22",
-            "D": 22,
-            "T": 66
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-22.5",
-            "D": 22.5,
-            "T": 67.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-23",
-            "D": 23,
-            "T": 69
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-23.5",
-            "D": 23.5,
-            "T": 70.5
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-24",
-            "D": 24,
-            "T": 72
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-25",
-            "D": 25,
-            "T": 75
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-26",
-            "D": 26,
-            "T": 78
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-27",
-            "D": 27,
-            "T": 81
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-28",
-            "D": 28,
-            "T": 84
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-29",
-            "D": 29,
-            "T": 87
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99313-30",
-            "D": 30,
-            "T": 90
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-16",
-            "D": 16,
-            "T": 64
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-17",
-            "D": 17,
-            "T": 68
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-18",
-            "D": 18,
-            "T": 72
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-19",
-            "D": 19,
-            "T": 76
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-20",
-            "D": 20,
-            "T": 80
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-21",
-            "D": 21,
-            "T": 84
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-22",
-            "D": 22,
-            "T": 88
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-23",
-            "D": 23,
-            "T": 92
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-24",
-            "D": 24,
-            "T": 96
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-25",
-            "D": 25,
-            "T": 100
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-26",
-            "D": 26,
-            "T": 104
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-27",
-            "D": 27,
-            "T": 108
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-28",
-            "D": 28,
-            "T": 112
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-29",
-            "D": 29,
-            "T": 116
-      },
-      {
-            "productName": "Super Drill",
-            "partNo": "99314-30",
-            "D": 30,
-            "T": 120
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-19100",
-            "D": 19,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-19150",
-            "D": 19,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-19200",
-            "D": 19,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-20100",
-            "D": 20,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-20150",
-            "D": 20,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-20200",
-            "D": 20,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-21100",
-            "D": 21,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-21150",
-            "D": 21,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-21200",
-            "D": 21,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-22100",
-            "D": 22,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-22150",
-            "D": 22,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-22200",
-            "D": 22,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-23100",
-            "D": 23,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-23150",
-            "D": 23,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-23200",
-            "D": 23,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-24100",
-            "D": 24,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-24150",
-            "D": 24,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-24200",
-            "D": 24,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-24250",
-            "D": 24,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-25100",
-            "D": 25,
-            "T": 100
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-25150",
-            "D": 25,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-25200",
-            "D": 25,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-25250",
-            "D": 25,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-26150",
-            "D": 26,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-26200",
-            "D": 26,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-26250",
-            "D": 26,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-27150",
-            "D": 27,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-27200",
-            "D": 27,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-27250",
-            "D": 27,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-28150",
-            "D": 28,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-28200",
-            "D": 28,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-28250",
-            "D": 28,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-29150",
-            "D": 29,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-29200",
-            "D": 29,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-29250",
-            "D": 29,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-29300",
-            "D": 29,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-30150",
-            "D": 30,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-30200",
-            "D": 30,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-30250",
-            "D": 30,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-30300",
-            "D": 30,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-31150",
-            "D": 31,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-31200",
-            "D": 31,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-31250",
-            "D": 31,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-31300",
-            "D": 31,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-32150",
-            "D": 32,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-32200",
-            "D": 32,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-32250",
-            "D": 32,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-32300",
-            "D": 32,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-33150",
-            "D": 33,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-33200",
-            "D": 33,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-33250",
-            "D": 33,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-33300",
-            "D": 33,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-34150",
-            "D": 34,
-            "T": 150
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-34200",
-            "D": 34,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-34250",
-            "D": 34,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-34300",
-            "D": 34,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-34350",
-            "D": 34,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-35200",
-            "D": 35,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-35250",
-            "D": 35,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-35300",
-            "D": 35,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-35350",
-            "D": 35,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-36200",
-            "D": 36,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-36250",
-            "D": 36,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-36300",
-            "D": 36,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-36350",
-            "D": 36,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-37200",
-            "D": 37,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-37250",
-            "D": 37,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-37300",
-            "D": 37,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-37350",
-            "D": 37,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-38200",
-            "D": 38,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-38250",
-            "D": 38,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-38300",
-            "D": 38,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-38350",
-            "D": 38,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-39200",
-            "D": 39,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-39250",
-            "D": 39,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-39300",
-            "D": 39,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-39350",
-            "D": 39,
-            "T": 350
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-40200",
-            "D": 40,
-            "T": 200
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-40250",
-            "D": 40,
-            "T": 250
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-40300",
-            "D": 40,
-            "T": 300
-      },
-      {
-            "productName": "Super Power Drill",
-            "partNo": "99307-40350",
-            "D": 40,
-            "T": 350
-      }
+      <script>
+            const drillData = [
 
-    ];
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-10",
+                        "D": 10,
+                        "T": 30,
+                        "L": 49,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-10.3",
+                        "D": 10.3,
+                        "T": 30.9,
+                        "L": 52,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-10.5",
+                        "D": 10.5,
+                        "T": 31.5,
+                        "L": 52,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-11",
+                        "D": 11,
+                        "T": 33,
+                        "L": 52,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-11.5",
+                        "D": 11.5,
+                        "T": 34.5,
+                        "L": 55,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-12",
+                        "D": 12,
+                        "T": 36,
+                        "L": 55,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-12.5",
+                        "D": 12.5,
+                        "T": 37.5,
+                        "L": 58,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-13",
+                        "D": 13,
+                        "T": 39,
+                        "L": 58,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-13.5",
+                        "D": 13.5,
+                        "T": 40.5,
+                        "L": 61,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-14",
+                        "D": 14,
+                        "T": 42,
+                        "L": 61,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-14.5",
+                        "D": 14.5,
+                        "T": 43.5,
+                        "L": 64,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-15",
+                        "D": 15,
+                        "T": 45,
+                        "L": 64,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-15.5",
+                        "D": 15.5,
+                        "T": 46.5,
+                        "L": 67,
+                        "d": 20
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-16",
+                        "D": 16,
+                        "T": 48,
+                        "L": 74,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-16.5",
+                        "D": 16.5,
+                        "T": 49.5,
+                        "L": 76,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-17",
+                        "D": 17,
+                        "T": 51,
+                        "L": 76,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-17.5",
+                        "D": 17.5,
+                        "T": 52.5,
+                        "L": 78,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-18",
+                        "D": 18,
+                        "T": 54,
+                        "L": 78,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-18.5",
+                        "D": 18.5,
+                        "T": 55.5,
+                        "L": 80,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-19",
+                        "D": 19,
+                        "T": 57,
+                        "L": 80,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-19.5",
+                        "D": 19.5,
+                        "T": 58.5,
+                        "L": 86,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-20",
+                        "D": 20,
+                        "T": 60,
+                        "L": 85,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-20.5",
+                        "D": 20.5,
+                        "T": 61.5,
+                        "L": 87,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-21",
+                        "D": 21,
+                        "T": 63,
+                        "L": 87,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-21.5",
+                        "D": 21.5,
+                        "T": 64.5,
+                        "L": 88,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-22",
+                        "D": 22,
+                        "T": 66,
+                        "L": 88,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-22.5",
+                        "D": 22.5,
+                        "T": 67.5,
+                        "L": 90,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-23",
+                        "D": 23,
+                        "T": 69,
+                        "L": 90,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-23.5",
+                        "D": 23.5,
+                        "T": 70.5,
+                        "L": 92,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-24",
+                        "D": 24,
+                        "T": 72,
+                        "L": 92,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-25",
+                        "D": 25,
+                        "T": 75,
+                        "L": 114,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-26",
+                        "D": 26,
+                        "T": 78,
+                        "L": 115,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-27",
+                        "D": 27,
+                        "T": 81,
+                        "L": 117,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-28",
+                        "D": 28,
+                        "T": 84,
+                        "L": 126,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-29",
+                        "D": 29,
+                        "T": 87,
+                        "L": 127,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99313-30",
+                        "D": 30,
+                        "T": 90,
+                        "L": 130,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-16",
+                        "D": 16,
+                        "T": 64,
+                        "L": 90,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-17",
+                        "D": 17,
+                        "T": 68,
+                        "L": 93,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-18",
+                        "D": 18,
+                        "T": 72,
+                        "L": 96,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-19",
+                        "D": 19,
+                        "T": 76,
+                        "L": 99,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-20",
+                        "D": 20,
+                        "T": 80,
+                        "L": 105,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-21",
+                        "D": 21,
+                        "T": 84,
+                        "L": 108,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-22",
+                        "D": 22,
+                        "T": 88,
+                        "L": 110,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-23",
+                        "D": 23,
+                        "T": 92,
+                        "L": 113,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-24",
+                        "D": 24,
+                        "T": 96,
+                        "L": 116,
+                        "d": 25
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-25",
+                        "D": 25,
+                        "T": 100,
+                        "L": 139,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-26",
+                        "D": 26,
+                        "T": 104,
+                        "L": 141,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-27",
+                        "D": 27,
+                        "T": 108,
+                        "L": 144,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-28",
+                        "D": 28,
+                        "T": 112,
+                        "L": 154,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-29",
+                        "D": 29,
+                        "T": 116,
+                        "L": 156,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Drill",
+                        "partNo": "99314-30",
+                        "D": 30,
+                        "T": 120,
+                        "L": 160,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-19100",
+                        "D": 19,
+                        "T": 100,
+                        "L": 134,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-19150",
+                        "D": 19,
+                        "T": 150,
+                        "L": 184,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-19200",
+                        "D": 19,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-20100",
+                        "D": 20,
+                        "T": 100,
+                        "L": 134,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-20150",
+                        "D": 20,
+                        "T": 150,
+                        "L": 184,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-20200",
+                        "D": 20,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-21100",
+                        "D": 21,
+                        "T": 100,
+                        "L": 134,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-21150",
+                        "D": 21,
+                        "T": 150,
+                        "L": 184,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-21200",
+                        "D": 21,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-22100",
+                        "D": 22,
+                        "T": 100,
+                        "L": 139,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-22150",
+                        "D": 22,
+                        "T": 150,
+                        "L": 189,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-22200",
+                        "D": 22,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-23100",
+                        "D": 23,
+                        "T": 100,
+                        "L": 139,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-23150",
+                        "D": 23,
+                        "T": 150,
+                        "L": 189,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-23200",
+                        "D": 23,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-24100",
+                        "D": 24,
+                        "T": 100,
+                        "L": 139,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-24150",
+                        "D": 24,
+                        "T": 150,
+                        "L": 189,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-24200",
+                        "D": 24,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-24250",
+                        "D": 24,
+                        "T": 250,
+                        "L": 289,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-25100",
+                        "D": 25,
+                        "T": 100,
+                        "L": 139,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-25150",
+                        "D": 25,
+                        "T": 150,
+                        "L": 189,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-25200",
+                        "D": 25,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-25250",
+                        "D": 25,
+                        "T": 250,
+                        "L": 289,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-26150",
+                        "D": 26,
+                        "T": 150,
+                        "L": 189,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-26200",
+                        "D": 26,
+                        "T": 200,
+                        "L": 239,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-26250",
+                        "D": 26,
+                        "T": 250,
+                        "L": 289,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-27150",
+                        "D": 27,
+                        "T": 150,
+                        "L": 198,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-27200",
+                        "D": 27,
+                        "T": 200,
+                        "L": 248,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-27250",
+                        "D": 27,
+                        "T": 250,
+                        "L": 298,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-28150",
+                        "D": 28,
+                        "T": 150,
+                        "L": 198,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-28200",
+                        "D": 28,
+                        "T": 200,
+                        "L": 248,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-28250",
+                        "D": 28,
+                        "T": 250,
+                        "L": 298,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-29150",
+                        "D": 29,
+                        "T": 150,
+                        "L": 198,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-29200",
+                        "D": 29,
+                        "T": 200,
+                        "L": 248,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-29250",
+                        "D": 29,
+                        "T": 250,
+                        "L": 298,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-29300",
+                        "D": 29,
+                        "T": 300,
+                        "L": 348,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-30150",
+                        "D": 30,
+                        "T": 150,
+                        "L": 198,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-30200",
+                        "D": 30,
+                        "T": 200,
+                        "L": 248,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-30250",
+                        "D": 30,
+                        "T": 250,
+                        "L": 298,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-30300",
+                        "D": 30,
+                        "T": 300,
+                        "L": 348,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-31150",
+                        "D": 31,
+                        "T": 150,
+                        "L": 198,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-31200",
+                        "D": 31,
+                        "T": 200,
+                        "L": 248,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-31250",
+                        "D": 31,
+                        "T": 250,
+                        "L": 298,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-31300",
+                        "D": 31,
+                        "T": 300,
+                        "L": 348,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-32150",
+                        "D": 32,
+                        "T": 150,
+                        "L": 203,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-32200",
+                        "D": 32,
+                        "T": 200,
+                        "L": 253,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-32250",
+                        "D": 32,
+                        "T": 250,
+                        "L": 303,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-32300",
+                        "D": 32,
+                        "T": 300,
+                        "L": 353,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-33150",
+                        "D": 33,
+                        "T": 150,
+                        "L": 203,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-33200",
+                        "D": 33,
+                        "T": 200,
+                        "L": 253,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-33250",
+                        "D": 33,
+                        "T": 250,
+                        "L": 303,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-33300",
+                        "D": 33,
+                        "T": 300,
+                        "L": 353,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-34150",
+                        "D": 34,
+                        "T": 150,
+                        "L": 203,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-34200",
+                        "D": 34,
+                        "T": 200,
+                        "L": 253,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-34250",
+                        "D": 34,
+                        "T": 250,
+                        "L": 303,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-34300",
+                        "D": 34,
+                        "T": 300,
+                        "L": 353,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-34350",
+                        "D": 34,
+                        "T": 350,
+                        "L": 403,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-35200",
+                        "D": 35,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-35250",
+                        "D": 35,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-35300",
+                        "D": 35,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-35350",
+                        "D": 35,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-36200",
+                        "D": 36,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-36250",
+                        "D": 36,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-36300",
+                        "D": 36,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-36350",
+                        "D": 36,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-37200",
+                        "D": 37,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-37250",
+                        "D": 37,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-37300",
+                        "D": 37,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-37350",
+                        "D": 37,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-38200",
+                        "D": 38,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-38250",
+                        "D": 38,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-38300",
+                        "D": 38,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-38350",
+                        "D": 38,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-39200",
+                        "D": 39,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-39250",
+                        "D": 39,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-39300",
+                        "D": 39,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-39350",
+                        "D": 39,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-40200",
+                        "D": 40,
+                        "T": 200,
+                        "L": 258,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-40250",
+                        "D": 40,
+                        "T": 250,
+                        "L": 308,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-40300",
+                        "D": 40,
+                        "T": 300,
+                        "L": 358,
+                        "d": 32
+                  },
+                  {
+                        "productName": "Super Power Drill",
+                        "partNo": "99307-40350",
+                        "D": 40,
+                        "T": 350,
+                        "L": 408,
+                        "d": 32
+                  }
 
-    const modeButtons = document.querySelectorAll('.mode-btn');
-    const holeSizeInput = document.querySelector('#holeSize');
-    const searchBtn = document.querySelector('#searchBtn');
-    const statusBox = document.querySelector('#status');
-    const bestResult = document.querySelector('#bestResult');
-    const bestTitle = document.querySelector('#bestTitle');
-    const bestMode = document.querySelector('#bestMode');
-    const bestProduct = document.querySelector('#bestProduct');
-    const bestPart = document.querySelector('#bestPart');
-    const bestD = document.querySelector('#bestD');
-    const bestT = document.querySelector('#bestT');
-    const emptyState = document.querySelector('#emptyState');
-    const tableWrap = document.querySelector('#tableWrap');
-    const resultBody = document.querySelector('#resultBody');
-    const countText = document.querySelector('#countText');
+            ];
 
-    let selectedProduct = 'Super Drill';
-    let selectedModeText = '<= 4xD';
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const holeSizeInput = document.querySelector('#holeSize');
+            const searchBtn = document.querySelector('#searchBtn');
+            const statusBox = document.querySelector('#status');
+            const bestResult = document.querySelector('#bestResult');
+            const bestTitle = document.querySelector('#bestTitle');
+            const bestMode = document.querySelector('#bestMode');
+            const bestProduct = document.querySelector('#bestProduct');
+            const bestPart = document.querySelector('#bestPart');
+            const bestD = document.querySelector('#bestD');
+            const bestT = document.querySelector('#bestT');
 
-    modeButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        modeButtons.forEach((item) => item.classList.remove('active'));
-        button.classList.add('active');
-        selectedProduct = button.dataset.product;
-        selectedModeText = button.dataset.mode === 'short' ? '<= 4xD' : '> 4xD';
-        runSearch();
-      });
-    });
+            const bestL = document.querySelector('#bestL');
+            const bestd = document.querySelector('#bestd');
 
-    searchBtn.addEventListener('click', runSearch);
-    holeSizeInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') runSearch();
-    });
-    holeSizeInput.addEventListener('input', () => {
-      if (holeSizeInput.value !== '') runSearch();
-    });
+            const emptyState = document.querySelector('#emptyState');
+            const tableWrap = document.querySelector('#tableWrap');
+            const resultBody = document.querySelector('#resultBody');
+            const countText = document.querySelector('#countText');
 
-    function runSearch() {
-      const holeSize = Number(holeSizeInput.value);
-      hideStatus();
+            let selectedProduct = 'Super Drill';
+            let selectedModeText = '<= 4xD';
 
-      if (!holeSizeInput.value || Number.isNaN(holeSize) || holeSize <= 0) {
-        resetView();
-        showStatus('請輸入大於 0 的孔徑數字。', 'warning');
-        return;
-      }
+            modeButtons.forEach((button) => {
+                  button.addEventListener('click', () => {
+                        modeButtons.forEach((item) => item.classList.remove('active'));
+                        button.classList.add('active');
+                        selectedProduct = button.dataset.product;
+                        selectedModeText = button.dataset.mode === 'short' ? '<= 4xD' : '> 4xD';
+                        runSearch();
+                  });
+            });
 
-      const sameProductItems = drillData
-        .filter((item) => item.productName === selectedProduct)
-        .sort((a, b) => a.D - b.D || a.T - b.T);
+            searchBtn.addEventListener('click', runSearch);
+            holeSizeInput.addEventListener('keydown', (event) => {
+                  if (event.key === 'Enter') runSearch();
+            });
+            holeSizeInput.addEventListener('input', () => {
+                  if (holeSizeInput.value !== '') runSearch();
+            });
 
-      const matchedItems = sameProductItems.filter((item) => item.D <= holeSize);
+            function runSearch() {
+                  const holeSize = Number(holeSizeInput.value);
+                  hideStatus();
 
-      if (matchedItems.length === 0) {
-        resetView();
-        showStatus(`${selectedModeText} / ${selectedProduct} 找不到 D 小於或等於 ${formatNumber(holeSize)} mm 的刀具。`, 'danger');
-        return;
-      }
+                  if (!holeSizeInput.value || Number.isNaN(holeSize) || holeSize <= 0) {
+                        resetView();
+                        showStatus('請輸入大於 0 的孔徑數字。', 'warning');
+                        return;
+                  }
 
-      const maxD = Math.max(...matchedItems.map((item) => item.D));
-      const bestItems = matchedItems.filter((item) => item.D === maxD).sort((a, b) => a.T - b.T);
-      const bestItem = bestItems[0];
+                  const sameProductItems = drillData
+                        .filter((item) => item.productName === selectedProduct)
+                        .sort((a, b) => a.D - b.D || a.T - b.T);
 
-      bestTitle.textContent = `${bestItem.partNo}`;
-      bestMode.textContent = `${selectedModeText}｜${selectedProduct}`;
-      bestProduct.textContent = bestItem.productName;
-      bestPart.textContent = bestItem.partNo;
-      bestD.textContent = `Ø${formatNumber(bestItem.D)} mm`;
-      bestT.textContent = `${formatNumber(bestItem.T)} mm`;
+                  const matchedItems = sameProductItems.filter((item) => item.D <= holeSize);
 
-      resultBody.innerHTML = bestItems.map((item) => `
-        <tr>
-          <td>${escapeHtml(item.productName)}</td>
-          <td class="fw-semibold">${escapeHtml(item.partNo)}</td>
-          <td>Ø${formatNumber(item.D)} mm</td>
-          <td>${formatNumber(item.T)} mm</td>
-        </tr>
-      `).join('');
+                  if (matchedItems.length === 0) {
+                        resetView();
+                        showStatus(`${selectedModeText} / ${selectedProduct} 找不到 D 小於或等於 ${formatNumber(holeSize)} mm 的刀具。`, 'danger');
+                        return;
+                  }
 
-      countText.textContent = `共 ${bestItems.length} 筆，D = ${formatNumber(maxD)} mm`;
-      bestResult.classList.remove('d-none');
-      tableWrap.classList.remove('d-none');
-      emptyState.classList.add('d-none');
+                  const maxD = Math.max(...matchedItems.map((item) => item.D));
+                  const bestItems = matchedItems.filter((item) => item.D === maxD).sort((a, b) => a.T - b.T);
+                  const bestItem = bestItems[0];
 
-      if (maxD < holeSize) {
-        showStatus(`沒有剛好 Ø${formatNumber(holeSize)} 的資料，已改推薦小於孔徑的最大 D：Ø${formatNumber(maxD)}。`, 'info');
-      }
-    }
+                  bestTitle.textContent = `${bestItem.partNo}`;
+                  bestMode.textContent = `${selectedModeText}｜${selectedProduct}`;
+                  bestProduct.textContent = bestItem.productName;
+                  bestPart.textContent = bestItem.partNo;
+                  bestD.textContent = `Ø${formatNumber(bestItem.D)} mm`;
+                  bestT.textContent = `${formatNumber(bestItem.T)} mm`;
+                  bestL.textContent = `${formatNumber(bestItem.L)} mm`;
+                  bestd.textContent = `${formatNumber(bestItem.d)} mm`;
 
-    function resetView() {
-      bestResult.classList.add('d-none');
-      tableWrap.classList.add('d-none');
-      emptyState.classList.remove('d-none');
-      resultBody.innerHTML = '';
-      countText.textContent = '';
-    }
+                  // resultBody.innerHTML = bestItems.map((item) => `
+                  //   <tr>
+                  //     <td>${escapeHtml(item.productName)}</td>
+                  //     <td class="fw-semibold">${escapeHtml(item.partNo)}</td>
+                  //     <td>Ø${formatNumber(item.D)} mm</td>
+                  //     <td>${formatNumber(item.T)} mm</td>
+                  //   </tr>
+                  // `).join('');
 
-    function showStatus(message, type) {
-      statusBox.textContent = message;
-      statusBox.className = `alert alert-${type}`;
-    }
+                  resultBody.innerHTML = bestItems.map((item) => `
+                    <tr>
+                      <td>${escapeHtml(item.productName)}</td>
+                      <td class="fw-semibold">${escapeHtml(item.partNo)}</td>
+                      <td>Ø${formatNumber(item.D)} mm</td>
+                      <td>${formatNumber(item.T)} mm</td>
+                      <td>${formatNumber(item.L)} mm</td>
+                      <td>${formatNumber(item.d)} mm</td>
+                    </tr>
+                  `).join('');
 
-    function hideStatus() {
-      statusBox.className = 'alert alert-info d-none';
-      statusBox.textContent = '';
-    }
 
-    function formatNumber(value) {
-      return Number(value).toLocaleString('zh-TW', { maximumFractionDigits: 3 });
-    }
+                  countText.textContent = `共 ${bestItems.length} 筆，D = ${formatNumber(maxD)} mm`;
+                  bestResult.classList.remove('d-none');
+                  tableWrap.classList.remove('d-none');
+                  emptyState.classList.add('d-none');
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-  </script>
+                  if (maxD < holeSize) {
+                        showStatus(`沒有剛好 Ø${formatNumber(holeSize)} 的資料，已改推薦小於孔徑的最大 D：Ø${formatNumber(maxD)}。`, 'info');
+                  }
+            }
+
+            function resetView() {
+                  bestResult.classList.add('d-none');
+                  tableWrap.classList.add('d-none');
+                  emptyState.classList.remove('d-none');
+                  resultBody.innerHTML = '';
+                  countText.textContent = '';
+            }
+
+            function showStatus(message, type) {
+                  statusBox.textContent = message;
+                  statusBox.className = `alert alert-${type}`;
+            }
+
+            function hideStatus() {
+                  statusBox.className = 'alert alert-info d-none';
+                  statusBox.textContent = '';
+            }
+
+            function formatNumber(value) {
+                  return Number(value).toLocaleString('zh-TW', { maximumFractionDigits: 3 });
+            }
+
+            function escapeHtml(value) {
+                  return String(value)
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll("'", '&#039;');
+            }
+      </script>
 </body>
+
 </html>
